@@ -1,7 +1,71 @@
 ﻿@page "/"
+@using CountryPopulationVisualisation.Models
+@using CountryPopulationVisualisation.Services
+@inject CountryService CountryService
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@if (countries == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table
+        class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Flag</th>
+            <th scope="col"><button @onclick="toggleNameSort">Name</button></th>
+            <th scope="col">Population</th>
+            <th scope="col">Capital</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var country in countries)
+        {
+            <tr>
+                <td><img src="@country.flagLocation" alt="@country.name" width="100" height="50" /></td>
+                <td>@country.name</td>
+                <td>~</td>
+                <td>@country.capital</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code{
+
+    private IEnumerable<CountryModel>? countries;
+    private string SortByName = "asc";
+    private string SortByPopulation = "asc";
+    private string SortByCapital = "asc";
+
+    protected override async Task OnInitializedAsync()
+    {
+        countries = await CountryService.GetCountries();
+        StateHasChanged();
+    }
+
+    private void toggleNameSort()
+    {
+        
+        if (SortByName == "asc")
+        {
+            countries = countries.OrderBy(x => x.name);
+            SortByName = "desc";
+        }
+        else
+        {
+            countries = countries.OrderByDescending(x => x.name);
+            SortByName = "asc";
+        }
+    }
+
+}
