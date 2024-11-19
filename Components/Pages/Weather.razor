@@ -1,5 +1,8 @@
 ﻿@page "/weather"
+@using CountryPopulationVisualisation.Models
+@using CountryPopulationVisualisation.Services
 @attribute [StreamRendering]
+@inject CountryService CountryService
 
 <PageTitle>Weather</PageTitle>
 
@@ -41,6 +44,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+
+        List<CountryModel> test = await CountryService.GetCountries();
+        foreach(CountryModel country in test)
+        {
+            Console.WriteLine(country.flagLocation);
+        }
+        
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 

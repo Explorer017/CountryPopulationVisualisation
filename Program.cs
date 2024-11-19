@@ -1,10 +1,13 @@
 using CountryPopulationVisualisation.Components;
+using CountryPopulationVisualisation.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<CountryService>();
+builder.Services.AddHttpClient<CountryService>();
 
 var app = builder.Build();
 
