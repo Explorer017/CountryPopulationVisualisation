@@ -21,9 +21,9 @@ else
         <thead>
         <tr>
             <th scope="col">Flag</th>
-            <th scope="col"><button @onclick="toggleNameSort">Name</button></th>
+            <th scope="col"><button @onclick="ToggleNameSort">Name</button></th>
             <th scope="col">Population</th>
-            <th scope="col">Capital</th>
+            <th scope="col"><button @onclick="ToggleCapitalSort">Capital</button></th>
         </tr>
         </thead>
         <tbody>
@@ -53,18 +53,33 @@ else
         StateHasChanged();
     }
 
-    private void toggleNameSort()
+    private void ToggleNameSort()
     {
         
         if (SortByName == "asc")
         {
-            countries = countries.OrderBy(x => x.name);
+            countries = countries.OrderByDescending(x => x.name);
             SortByName = "desc";
         }
         else
         {
-            countries = countries.OrderByDescending(x => x.name);
+            countries = countries.OrderBy(x => x.name);
             SortByName = "asc";
+        }
+    }
+    
+    private void ToggleCapitalSort()
+    {
+        
+        if (SortByCapital == "asc")
+        {
+            countries = countries.OrderByDescending(x => x.capital);
+            SortByCapital = "desc";
+        }
+        else
+        {
+            countries = countries.OrderBy(x => x.capital);
+            SortByCapital = "asc";
         }
     }
 

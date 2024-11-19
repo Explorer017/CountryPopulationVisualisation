@@ -29,13 +29,18 @@ public class CountryService
         
         var flags = await GetFlagList();
         
-        // get flag for each country
+        // run though each country and add the flag location, as well as set the capital to a placeholder if it is null
         foreach (var country in countries.data)
         {
             var flag = flags.data.FirstOrDefault(x => x.iso2 == country.iso2);
             if (flag != null)
             {
                 country.flagLocation = flag.flag;
+            }
+            
+            if (string.IsNullOrEmpty(country.capital))
+            {
+                country.capital = "(Dataset did not provide capital)";
             }
         }
         
