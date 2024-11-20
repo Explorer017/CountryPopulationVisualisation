@@ -8,17 +8,17 @@
 
 @if (countries == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Loading....</em></p>
 }
 else
 {
-    <div class="container">
-        <div class="row justify-content-between">
+    <div class="">
+        <div class="row justify-content-between w-100 d-flex">
             <div class="col">
                 <h1>Countries</h1>
             </div>
-            <div class="col">
-                <div class="">
+            <div class="col row justify-content-end">
+                <div class="col-3">
                     <select class="form-select" aria-label="Default select example" @bind="year">
                         <option selected value="2018">2018</option>
                         @for (int i = 2017; i >= 1961; i--)
@@ -27,7 +27,7 @@ else
                         }
                     </select>
                 </div>
-                <div class="">
+                <div class="col-auto">
                     <button class="btn btn-primary" @onclick="ChangeYear">
                         change year
                     </button>
@@ -41,9 +41,52 @@ else
         <thead>
         <tr>
             <th scope="col">Flag</th>
-            <th scope="col"><button @onclick="ToggleNameSort">Name</button></th>
-            <th scope="col"><button @onclick="TogglePopulationSort">Population</button></th>
-            <th scope="col"><button @onclick="ToggleCapitalSort">Capital</button></th>
+            <th scope="col">
+                <button @onclick="ToggleNameSort" class="btn p-0 m-0 w-100 h-100 text-start">
+                    @if (currentSort == "name")
+                    {
+                        @if (SortByName == "asc")
+                        {
+                            <i class="bi bi-caret-up-fill p-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-caret-down-fill p-2"></i>
+                        }
+                    }
+                    <b>Name</b>
+                </button>
+            </th>
+            <th scope="col">
+                <button @onclick="TogglePopulationSort" class="btn p-0 m-0 w-100 h-100 text-start">
+                    @if (currentSort == "population")
+                    {
+                        @if (SortByPopulation == "asc")
+                        {
+                            <i class="bi bi-caret-up-fill p-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-caret-down-fill p-2"></i>
+                        }
+                    }
+                    <b>Population</b>
+                </button>
+            </th>
+            <th scope="col"><button @onclick="ToggleCapitalSort" class="btn p-0 m-0 w-100 h-100 text-start">
+                @if (currentSort == "capital")
+                {
+                    @if (SortByCapital == "asc")
+                    {
+                        <i class="bi bi-caret-up-fill p-2"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-caret-down-fill p-2"></i>
+                    }
+                }
+                <b>Capital</b>
+            </button></th>
         </tr>
         </thead>
         <tbody>
@@ -86,6 +129,7 @@ else
     private string SortByName = "asc";
     private string SortByPopulation = "asc";
     private string SortByCapital = "asc";
+    private string currentSort = "name";
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,7 +139,6 @@ else
 
     private void ToggleNameSort()
     {
-
         if (SortByName == "asc")
         {
             countries = countries.OrderByDescending(x => x.name);
@@ -106,6 +149,7 @@ else
             countries = countries.OrderBy(x => x.name);
             SortByName = "asc";
         }
+        currentSort = "name";
     }
 
     private void ToggleCapitalSort()
@@ -121,6 +165,7 @@ else
             countries = countries.OrderBy(x => x.capital);
             SortByCapital = "asc";
         }
+        currentSort = "capital";
     }
 
     private void TogglePopulationSort()
@@ -135,11 +180,29 @@ else
             countries = countries.OrderBy(x => x.population);
             SortByPopulation = "asc";
         }
+        currentSort = "population";
     }
 
     private async void ChangeYear()
     {
+        // update list with corresponding year
         countries = await CountryService.UpdateYearsForCountries(countries.ToList(), year);
+        // update order of list to match the new data
+        if (currentSort == "name")
+        {
+            ToggleNameSort();
+            ToggleNameSort();
+        }
+        else if (currentSort == "population")
+        {
+            TogglePopulationSort();
+            TogglePopulationSort();
+        }
+        else
+        {
+            ToggleCapitalSort();
+            ToggleCapitalSort();
+        }
         StateHasChanged();
     }
 
