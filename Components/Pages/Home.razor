@@ -188,21 +188,18 @@ else
         // update list with corresponding year
         countries = await CountryService.UpdateYearsForCountries(countries.ToList(), year);
         // update order of list to match the new data
-        if (currentSort == "name")
+        if (currentSort == "population")
         {
-            ToggleNameSort();
-            ToggleNameSort();
+            if (SortByPopulation == "asc")
+            {
+                countries = countries.OrderBy(x => x.population);
+            }
+            else
+            {
+                countries = countries.OrderByDescending(x => x.population);
+            }
         }
-        else if (currentSort == "population")
-        {
-            TogglePopulationSort();
-            TogglePopulationSort();
-        }
-        else
-        {
-            ToggleCapitalSort();
-            ToggleCapitalSort();
-        }
+
         StateHasChanged();
     }
 
