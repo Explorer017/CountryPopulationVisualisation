@@ -7,4 +7,5 @@ public class CountryModel
     public string iso3 { get; set; }
     public string capital { get; set; }
     public string flagLocation { get; set; }
+    public long population { get; set; }
 }

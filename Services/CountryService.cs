@@ -43,8 +43,32 @@ public class CountryService
                 country.capital = "(Dataset did not provide capital)";
             }
         }
+
+        countries.data = await UpdateYearsForCountries(countries.data, 2018);
         
         return countries.data;
+    }
+
+    public async Task<List<CountryModel>> UpdateYearsForCountries(List<CountryModel> countries, int year)
+    {
+        AllCountryPopulationModel populationData = await GetAllPopulation();
+        foreach (var country in countries)
+        {
+            var population = populationData.data.FirstOrDefault(x => x.iso3 == country.iso3);
+            if (population == null)
+            {
+                country.population = 0;
+            }
+            else
+            {
+                if ((population.populationCounts.FirstOrDefault(x => x.year == year) != null))
+                    country.population = population.populationCounts.FirstOrDefault(x => x.year == year).value;
+                else
+                    country.population = 0;
+            }
+        }
+
+        return countries;
     }
 
     private async Task<GetFlagModel> GetFlagList()
@@ -61,6 +85,22 @@ public class CountryService
         }
         
         return flags;
+    }
+
+    private async Task<AllCountryPopulationModel> GetAllPopulation()
+    {
+        var response = await _httpClient.GetAsync("https://countriesnow.space/api/v0.1/countries/population");
+        response.EnsureSuccessStatusCode();
+        
+        var content = await response.Content.ReadAsStringAsync();
+        AllCountryPopulationModel? countries = JsonConvert.DeserializeObject<AllCountryPopulationModel>(content);
+
+        if (countries == null)
+        {
+            throw new Exception("Failed to deserialize countries");
+        }
+        
+        return countries;
     }
 
 
