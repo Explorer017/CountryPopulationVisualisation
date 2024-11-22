@@ -13,6 +13,7 @@ public class CityPopulationModel
     public class CityPopulationCountsModel
     {
         public int year { get; set; }
-        public long value { get; set; }
+        //public long value { get; set; }
+        public double value { get; set; }
     }
 }

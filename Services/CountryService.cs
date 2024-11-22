@@ -105,11 +105,11 @@ public class CountryService
         return countries;
     }
     
-    public async Task<CountryModel> GetCountry(string iso3, int year)
+    public async Task<CountryModel> GetCountry(string iso2, int year)
     {
         // get country name and capital
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/capital");
-        request.Content = new StringContent($"{{ \"iso2\":\"{iso3}\" }}", Encoding.UTF8, "application/json");
+        request.Content = new StringContent($"{{ \"iso2\":\"{iso2}\" }}", Encoding.UTF8, "application/json");
         
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();

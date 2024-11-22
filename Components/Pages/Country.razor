@@ -10,6 +10,20 @@
 {
     <i>loading...</i>
 }
+else if (Cities == null){
+    <div class="d-flex flex-row">
+        <div class="w-25 p-2">
+            <img src="@country.flagLocation" alt="@country.name" style="max-width: 100%"/>
+        </div>
+        <div class="p-2">
+            <h1>@country.name</h1>
+            <h3>Population (2018): @population2018.ToString("N0")</h3>
+            <h3>Capital: @country.capital</h3>
+        </div>
+    </div>
+    
+    <h4>No City data available for @country.name</h4>
+}
 else
 {
     <div class="d-flex flex-row">
@@ -23,25 +37,103 @@ else
         </div>
     </div>
     
-    @foreach (City city in Cities)
+    <!--
+    <p>@city.Name</p>
+    @foreach (KeyValuePair<int, long> population in city.Population)
     {
-        <p>@city.Name</p>
-        @foreach (KeyValuePair<int, long> population in city.Population)
-        {
-            <p>@population.Key : @population.Value</p>
-        }
+        <p>@population.Key : @population.Value</p>
     }
+    -->
     
+    <select class="form-select" @bind="year">
+        @for (int i =  yearsRecorded.Count-1; i >= 0; i--)
+        {
+            @if (yearsRecorded[i] == year)
+            {
+                <option selected value="@yearsRecorded[i]">@yearsRecorded[i]</option>
+            }
+            else
+            {
+                <option value="@yearsRecorded[i]">@yearsRecorded[i]</option>
+            }
+        }
+    </select>
+    
+    <table
+    class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th scope="col">
+            <button @onclick="ToggleNameSort" class="btn p-0 m-0 w-100 h-100 text-start">
+                @if (currentSort == "name")
+                {
+                    @if (SortByName == "asc")
+                    {
+                        <i class="bi bi-caret-up-fill p-2"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-caret-down-fill p-2"></i>
+                    }
+                }
+                <b>Name</b>
+            </button>
+        </th>
+        <th scope="col">
+            <button @onclick="TogglePopulationSort" class="btn p-0 m-0 w-100 h-100 text-start">
+                @if (currentSort == "population")
+                {
+                @if (SortByPopulation == "asc")
+                {
+                <i class="bi bi-caret-up-fill p-2"></i>
+                }
+                else
+                {
+                <i class="bi bi-caret-down-fill p-2"></i>
+                }
+                }
+                <b>Population</b>
+            </button>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var c in Cities)
+    {
+        <tr>
+            <td>
+                @c.Name
+            </td>
+            <td>
+                @if (c.Population.ContainsKey(year))
+                {
+                    @c.Population[year].ToString("N0");
+                }
+                else
+                {
+                    <i>Dataset did not provide population for this period</i>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
 }
 
+
 @code{
-    [Parameter]
-    public string iso3 { get; set; }
-    
+    [Parameter] public string iso3 { get; set; }
+
     private CountryModel? country = null;
     long population2018 = 0;
-    List<City> Cities = new List<City>();
-    
+    List<City>? Cities;
+    List<int> yearsRecorded;
+
+    private string SortByName = "asc";
+    private string SortByPopulation = "asc";
+    private string currentSort = "name";
+    int year = 2018;
+
     protected override async Task OnInitializedAsync()
     {
         country = await CountryService.GetCountry(iso3, 2018);
@@ -49,7 +141,47 @@ else
         {
             population2018 = country.population;
             Cities = await CityService.GetCities(country.name);
+            if (Cities != null)
+            {
+                yearsRecorded = City.GetYears(Cities);
+                year = yearsRecorded[^1];
+            }
         }
-        
+
     }
+
+    private void ToggleNameSort()
+    {
+        if (SortByName == "asc")
+        {
+            Cities = Cities.OrderByDescending(x => x.Name).ToList();
+            SortByName = "desc";
+        }
+        else
+        {
+            Cities = Cities.OrderBy(x => x.Name).ToList();
+            SortByName = "asc";
+        }
+
+        currentSort = "name";
+    }
+
+    private void TogglePopulationSort()
+    {
+        if (SortByPopulation == "asc")
+        {
+            // order the cities by population, if a population doesn't exist for that year, then use 0 instead of the year in the sort
+            Cities = Cities.OrderByDescending(x => x.Population.TryGetValue(year, out double value) ? (ok: true, value) : (ok: false, 0)).ToList();
+            SortByPopulation = "desc";
+        }
+        else
+        {
+            // order the cities by population, if a population doesn't exist for that year, then use 0 instead of the year in the sort
+            Cities = Cities.OrderBy(x => x.Population.TryGetValue(year, out double value) ? (ok: true, value) : (ok: false, 0)).ToList();
+            SortByPopulation = "asc";
+        }
+
+        currentSort = "population";
+    }
+
 }

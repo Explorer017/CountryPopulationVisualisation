@@ -32,14 +32,14 @@ public class CityService
         return cityPopulation;
     }
 
-    public async Task<List<City>> GetCities(string country)
+    public async Task<List<City>?> GetCities(string country)
     {
         GetCityPopulationModel cityPopulation = await getCityPopulation(country);
         List<City> cities = new List<City>();
 
         foreach (CityPopulationModel cityPopulationModel in cityPopulation.data)
         {
-            City city = new City(cityPopulationModel.city);
+            City city = new City(cityPopulationModel.city, cityPopulationModel.country);
             foreach (var populations in cityPopulationModel.populationCounts)
             {
                 // if year already exists, replace with new data only if population is higher
@@ -55,7 +55,13 @@ public class CityService
                     city.Population.Add(populations.year, populations.value);
                 }
             }
-            cities.Add(city);
+            // check the country is correct
+            // needs to be equals to or starts with because of an edge case with "United Kingdom" where the country
+            // name is "United Kingdom" but the country name on the city is "United Kingdom of Great Britain and Northern Ireland"
+            if (city.Country == country || city.Country.StartsWith($@"{country} "))
+            {
+                cities.Add(city);
+            }
         }
 
         if (cities.Count == 0)
