@@ -7,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSingleton<CountryService>();
+builder.Services.AddSingleton<CityService>();
 builder.Services.AddHttpClient<CountryService>();
+builder.Services.AddHttpClient<CityService>();
 
 var app = builder.Build();
 

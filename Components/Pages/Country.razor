@@ -2,6 +2,7 @@
 @using CountryPopulationVisualisation.Models
 @using CountryPopulationVisualisation.Services
 @inject CountryService CountryService
+@inject CityService CityService
 @rendermode InteractiveServer
 
 
@@ -22,7 +23,14 @@ else
         </div>
     </div>
     
-    
+    @foreach (City city in Cities)
+    {
+        <p>@city.Name</p>
+        @foreach (KeyValuePair<int, long> population in city.Population)
+        {
+            <p>@population.Key : @population.Value</p>
+        }
+    }
     
 }
 
@@ -32,6 +40,7 @@ else
     
     private CountryModel? country = null;
     long population2018 = 0;
+    List<City> Cities = new List<City>();
     
     protected override async Task OnInitializedAsync()
     {
@@ -39,6 +48,8 @@ else
         if (country != null)
         {
             population2018 = country.population;
+            Cities = await CityService.GetCities(country.name);
         }
+        
     }
 }
