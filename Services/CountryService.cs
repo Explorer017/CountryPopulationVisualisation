@@ -73,13 +73,13 @@ public class CountryService
         return countries;
     }
 
-    private async Task<GetFlagModel> GetFlagList()
+    private async Task<GetFlagsModel> GetFlagList()
     {
         var response = await _httpClient.GetAsync("https://countriesnow.space/api/v0.1/countries/flag/images");
         response.EnsureSuccessStatusCode();
         
         var content = await response.Content.ReadAsStringAsync();
-        GetFlagModel? flags = JsonConvert.DeserializeObject<GetFlagModel>(content);
+        GetFlagsModel? flags = JsonConvert.DeserializeObject<GetFlagsModel>(content);
         
         if (flags == null)
         {
@@ -105,10 +105,76 @@ public class CountryService
         return countries;
     }
     
-    public async Task<CountryModel> GetCountry(string iso3)
+    public async Task<CountryModel> GetCountry(string iso3, int year)
     {
-        var countries = await GetCountries();
-        return countries.FirstOrDefault(x => x.iso3 == iso3);
+        // get country name and capital
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/capital");
+        request.Content = new StringContent($"{{ \"iso2\":\"{iso3}\" }}", Encoding.UTF8, "application/json");
+        
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        
+        var content = await response.Content.ReadAsStringAsync();
+        GetCountryModel Country = JsonConvert.DeserializeObject<GetCountryModel>(content);
+        
+        if (Country == null)
+        {
+            throw new Exception("Failed to deserialize country");
+        }
+        
+        // get the population for the country
+       CountryPopulation population = await GetCountryPopulation(Country.data.iso3);
+       Country.data.population = 0;
+       foreach (var populationData in population.populationCounts)
+       {
+           if (populationData.year == year)
+           {
+               Country.data.population = populationData.value;
+               break;
+           }
+       }
+       
+       // get country flag
+         Country.data.flagLocation = await getFlag(Country.data.iso2);
+
+        return Country.data;
+    }
+
+    public async Task<CountryPopulation> GetCountryPopulation(string iso3)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/population");
+        request.Content = new StringContent($"{{ \"iso3\":\"{iso3}\" }}", Encoding.UTF8, "application/json");
+        
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        
+        var content = await response.Content.ReadAsStringAsync();
+        CountryPopulation population = JsonConvert.DeserializeObject<CountryPopulationModel>(content).data;
+        
+        if (population == null)
+        {
+            throw new Exception("Failed to deserialize population");
+        }
+        return population;
+    }
+
+    public async Task<string> getFlag(string iso2)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/flag/images");
+        request.Content = new StringContent($"{{ \"iso2\":\"{iso2}\" }}", Encoding.UTF8, "application/json");
+        
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        
+        var content = await response.Content.ReadAsStringAsync();
+        GetFlagModel flag = JsonConvert.DeserializeObject<GetFlagModel>(content);
+        
+        if (flag == null)
+        {
+            throw new Exception("Failed to deserialize flag");
+        }
+
+        return flag.data.flag;
     }
 
 

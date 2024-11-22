@@ -2,17 +2,43 @@
 @using CountryPopulationVisualisation.Models
 @using CountryPopulationVisualisation.Services
 @inject CountryService CountryService
+@rendermode InteractiveServer
 
-<h1>@iso3</h1>
+
+@if (country == null)
+{
+    <i>loading...</i>
+}
+else
+{
+    <div class="d-flex flex-row">
+        <div class="w-25 p-2">
+            <img src="@country.flagLocation" alt="@country.name" style="max-width: 100%"/>
+        </div>
+        <div class="p-2">
+            <h1>@country.name</h1>
+            <h3>Population (2018): @population2018.ToString("N0")</h3>
+            <h3>Capital: @country.capital</h3>
+        </div>
+    </div>
+    
+    
+    
+}
 
 @code{
     [Parameter]
     public string iso3 { get; set; }
     
-    private CountryModel country;
+    private CountryModel? country = null;
+    long population2018 = 0;
     
     protected override async Task OnInitializedAsync()
     {
-        country = await CountryService.GetCountry(iso3);
+        country = await CountryService.GetCountry(iso3, 2018);
+        if (country != null)
+        {
+            population2018 = country.population;
+        }
     }
 }
