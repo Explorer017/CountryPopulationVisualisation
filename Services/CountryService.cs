@@ -54,6 +54,7 @@ public class CountryService
         AllCountryPopulationModel populationData = await GetAllPopulation();
         foreach (var country in countries)
         {
+            // get the population for the country
             var population = populationData.data.FirstOrDefault(x => x.iso3 == country.iso3);
             if (population == null)
             {
@@ -61,6 +62,7 @@ public class CountryService
             }
             else
             {
+                // if the population for the year is not found, set it to 0
                 if ((population.populationCounts.FirstOrDefault(x => x.year == year) != null))
                     country.population = population.populationCounts.FirstOrDefault(x => x.year == year).value;
                 else
@@ -101,6 +103,12 @@ public class CountryService
         }
         
         return countries;
+    }
+    
+    public async Task<CountryModel> GetCountry(string iso3)
+    {
+        var countries = await GetCountries();
+        return countries.FirstOrDefault(x => x.iso3 == iso3);
     }
 
 

@@ -1,0 +1,18 @@
+﻿@page "/country/{iso3}"
+@using CountryPopulationVisualisation.Models
+@using CountryPopulationVisualisation.Services
+@inject CountryService CountryService
+
+<h1>@iso3</h1>
+
+@code{
+    [Parameter]
+    public string iso3 { get; set; }
+    
+    private CountryModel country;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        country = await CountryService.GetCountry(iso3);
+    }
+}
