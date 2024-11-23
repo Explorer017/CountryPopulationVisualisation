@@ -45,19 +45,28 @@ else
     }
     -->
     
-    <select class="form-select" @bind="year">
-        @for (int i =  yearsRecorded.Count-1; i >= 0; i--)
-        {
-            @if (yearsRecorded[i] == year)
-            {
-                <option selected value="@yearsRecorded[i]">@yearsRecorded[i]</option>
-            }
-            else
-            {
-                <option value="@yearsRecorded[i]">@yearsRecorded[i]</option>
-            }
-        }
-    </select>
+    <div class="row justify-content-end p-2">
+        <div class="col-3">
+            <select class="form-select" @bind="year">
+                @for (int i = yearsRecorded.Count - 1; i >= 0; i--)
+                {
+                    @if (yearsRecorded[i] == year)
+                    {
+                        <option selected value="@yearsRecorded[i]">@yearsRecorded[i]</option>
+                    }
+                    else
+                    {
+                        <option value="@yearsRecorded[i]">@yearsRecorded[i]</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="changeYear">
+                change year
+            </button>
+        </div>
+    </div>
     
     <table
     class="table table-bordered table-striped">
@@ -105,9 +114,9 @@ else
                 @c.Name
             </td>
             <td>
-                @if (c.Population.ContainsKey(year))
+                @if (c.Population.ContainsKey(yearSelected))
                 {
-                    @c.Population[year].ToString("N0");
+                    @c.Population[yearSelected].ToString("N0");
                 }
                 else
                 {
@@ -133,6 +142,7 @@ else
     private string SortByPopulation = "asc";
     private string currentSort = "name";
     int year = 2018;
+    int yearSelected = 2018;
 
     protected override async Task OnInitializedAsync()
     {
@@ -145,6 +155,7 @@ else
             {
                 yearsRecorded = City.GetYears(Cities);
                 year = yearsRecorded[^1];
+                yearSelected = yearsRecorded[^1];
             }
         }
 
@@ -182,6 +193,11 @@ else
         }
 
         currentSort = "population";
+    }
+
+    private void changeYear()
+    {
+        yearSelected = year;
     }
 
 }

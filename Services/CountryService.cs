@@ -125,14 +125,19 @@ public class CountryService
         // get the population for the country
        CountryPopulation population = await GetCountryPopulation(Country.data.iso3);
        Country.data.population = 0;
-       foreach (var populationData in population.populationCounts)
-       {
-           if (populationData.year == year)
+       
+       if (population != null)
+       {    
+           foreach (var populationData in population.populationCounts)
            {
-               Country.data.population = populationData.value;
-               break;
+               if (populationData.year == year)
+               {
+                   Country.data.population = populationData.value;
+                   break;
+               }
            }
        }
+       
        
        // get country flag
          Country.data.flagLocation = await getFlag(Country.data.iso2);
@@ -140,13 +145,16 @@ public class CountryService
         return Country.data;
     }
 
-    public async Task<CountryPopulation> GetCountryPopulation(string iso3)
+    public async Task<CountryPopulation?> GetCountryPopulation(string iso3)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/population");
         request.Content = new StringContent($"{{ \"iso3\":\"{iso3}\" }}", Encoding.UTF8, "application/json");
         
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (response.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            return null;
+        }
         
         var content = await response.Content.ReadAsStringAsync();
         CountryPopulation population = JsonConvert.DeserializeObject<CountryPopulationModel>(content).data;
@@ -158,13 +166,16 @@ public class CountryService
         return population;
     }
 
-    public async Task<string> getFlag(string iso2)
+    public async Task<string?> getFlag(string iso2)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/flag/images");
         request.Content = new StringContent($"{{ \"iso2\":\"{iso2}\" }}", Encoding.UTF8, "application/json");
         
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (response.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            return null;
+        }
         
         var content = await response.Content.ReadAsStringAsync();
         GetFlagModel flag = JsonConvert.DeserializeObject<GetFlagModel>(content);

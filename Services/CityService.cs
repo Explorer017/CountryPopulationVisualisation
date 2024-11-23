@@ -19,7 +19,10 @@ public class CityService
         request.Content = new StringContent($"{{ \"country\":\"{country}\", \"order\":\"asc\", \"orderBy\":\"name\" }}", Encoding.UTF8, "application/json");
         
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (response.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            return null;
+        }
         
         var content = await response.Content.ReadAsStringAsync();
         GetCityPopulationModel cityPopulation = JsonConvert.DeserializeObject<GetCityPopulationModel>(content);
@@ -35,6 +38,10 @@ public class CityService
     public async Task<List<City>?> GetCities(string country)
     {
         GetCityPopulationModel cityPopulation = await getCityPopulation(country);
+        if (cityPopulation == null || cityPopulation.data == null)
+        {
+            return null;
+        }
         List<City> cities = new List<City>();
 
         foreach (CityPopulationModel cityPopulationModel in cityPopulation.data)
