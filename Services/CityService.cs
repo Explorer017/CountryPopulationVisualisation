@@ -13,6 +13,9 @@ public class CityService
         _httpClient = httpClient;
     }
 
+    /// <summary>
+    /// Method <c>getCityPopulation</c> calls the API to get all city population data for a given country
+    /// </summary>
     private async Task<GetCityPopulationModel> getCityPopulation(string country)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/population/cities/filter");
@@ -35,6 +38,10 @@ public class CityService
         return cityPopulation;
     }
 
+    /// <summary>
+    /// Method <c>GetCities</c> returns a list of <c>City</c> objects, representing all cities in a given country,
+    /// containing all population data for that city
+    /// </summary>
     public async Task<List<City>?> GetCities(string country)
     {
         GetCityPopulationModel cityPopulation = await getCityPopulation(country);

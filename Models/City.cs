@@ -4,17 +4,18 @@ public class City
 {
     public string Name { get; set; }
     public string Country { get; set; }
-    //public Dictionary<int, long> Population { get; set; }
     public Dictionary<int, double> Population { get; set; }
 
     public City(string name, string country)
     {
         Name = name;
         Country = country;
-        //Population = new Dictionary<int, long>();
         Population = new Dictionary<int, double>();
     }
 
+    /// <summary>
+    /// Method <c>GetYears</c> returns all years that have data for a list of Cities
+    /// </summary>
     public static List<int> GetYears(List<City>? cities)
     {
         if (cities == null)

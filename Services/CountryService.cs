@@ -13,7 +13,9 @@ public class CountryService
         _httpClient = httpClient;
     }
     
-    // get all countries
+    /// <summary>
+    /// Method <c>GetCountries</c> calls the API to get a list of every country including its capital and flag
+    /// </summary>
     public async Task<List<CountryModel>> GetCountries()
     {
         var response = await _httpClient.GetAsync("https://countriesnow.space/api/v0.1/countries/capital");
@@ -49,6 +51,9 @@ public class CountryService
         return countries.data;
     }
 
+    /// <summary>
+    /// Method <c>UpdateYearsForCountries</c> changes the population data in the list of countries to that of a given year 
+    /// </summary>
     public async Task<List<CountryModel>> UpdateYearsForCountries(List<CountryModel> countries, int year)
     {
         AllCountryPopulationModel populationData = await GetAllPopulation();
@@ -64,15 +69,22 @@ public class CountryService
             {
                 // if the population for the year is not found, set it to 0
                 if ((population.populationCounts.FirstOrDefault(x => x.year == year) != null))
+                {
                     country.population = population.populationCounts.FirstOrDefault(x => x.year == year).value;
+                }
                 else
+                {
                     country.population = 0;
+                }
             }
         }
 
         return countries;
     }
-
+    
+    /// <summary>
+    /// Method <c>GetFlagList</c> calls the API to get a list of all flags
+    /// </summary>
     private async Task<GetFlagsModel> GetFlagList()
     {
         var response = await _httpClient.GetAsync("https://countriesnow.space/api/v0.1/countries/flag/images");
@@ -89,6 +101,9 @@ public class CountryService
         return flags;
     }
 
+    /// <summary>
+    /// Method <c>GetAllPopulation</c> calls the API to get population data for every country and year
+    /// </summary>
     private async Task<AllCountryPopulationModel> GetAllPopulation()
     {
         var response = await _httpClient.GetAsync("https://countriesnow.space/api/v0.1/countries/population");
@@ -105,6 +120,9 @@ public class CountryService
         return countries;
     }
     
+    /// <summary>
+    /// Method <c>GetCountry</c> calls the API to get country name and population data from a countries <c>iso2</c>
+    /// </summary>
     public async Task<CountryModel> GetCountry(string iso2, int year)
     {
         // get country name and capital
@@ -140,12 +158,15 @@ public class CountryService
        
        
        // get country flag
-         Country.data.flagLocation = await getFlag(Country.data.iso2);
+       Country.data.flagLocation = await GetFlag(Country.data.iso2);
 
         return Country.data;
     }
 
-    public async Task<CountryPopulation?> GetCountryPopulation(string iso3)
+    /// <summary>
+    /// Method <c>GetCountryPopulation</c> calls the API to get population data for a country from its <c>iso3</c>
+    /// </summary>
+    private async Task<CountryPopulation?> GetCountryPopulation(string iso3)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/population");
         request.Content = new StringContent($"{{ \"iso3\":\"{iso3}\" }}", Encoding.UTF8, "application/json");
@@ -166,7 +187,10 @@ public class CountryService
         return population;
     }
 
-    public async Task<string?> getFlag(string iso2)
+    /// <summary>
+    /// Method <c>GetFlag</c> calls the API to get a flag for a country from its <c>iso2</c>
+    /// </summary>
+    private async Task<string?> GetFlag(string iso2)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "https://countriesnow.space/api/v0.1/countries/flag/images");
         request.Content = new StringContent($"{{ \"iso2\":\"{iso2}\" }}", Encoding.UTF8, "application/json");
