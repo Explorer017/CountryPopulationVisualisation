@@ -107,7 +107,7 @@ else
             <td><button class="btn btn-link p-0 m-0 w-100 h-100 text-start" onclick="location.href = '/country/@country.iso2';">@country.name</button></td>
                 <td>@if (country.population != 0)
                     {
-                        @country.population
+                        @country.population.ToString("N0");
                     }
                     else
                     {
